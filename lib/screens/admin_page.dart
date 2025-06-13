@@ -15,15 +15,21 @@ class _AdminPageState extends State<AdminPage> {
 
   void actualizarRol(String uid, String nuevoRol) async {
     await _firestore.collection('usuarios').doc(uid).update({'rol': nuevoRol});
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Rol actualizado a $nuevoRol')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Rol actualizado a $nuevoRol')));
   }
 
-  void activarUsuario(String uid) async {
-    await _firestore.collection('usuarios').doc(uid).update({'activo': true});
+  void toggleActivo(String uid, bool estadoActual) async {
+    await _firestore.collection('usuarios').doc(uid).update({
+      'activo': !estadoActual,
+    });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Usuario activado')),
+      SnackBar(
+        content: Text(
+          estadoActual ? 'Usuario desactivado' : 'Usuario activado',
+        ),
+      ),
     );
   }
 
@@ -40,16 +46,14 @@ class _AdminPageState extends State<AdminPage> {
       appBar: AppBar(
         title: const Text('Panel de Administrador'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: cerrarSesion,
-          ),
+          IconButton(icon: const Icon(Icons.logout), onPressed: cerrarSesion),
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore.collection('usuarios').snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData)
+            return const Center(child: CircularProgressIndicator());
 
           final usuarios = snapshot.data!.docs;
 
@@ -70,7 +74,10 @@ class _AdminPageState extends State<AdminPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        nombre,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 4),
                       Text('Email: $email'),
                       const SizedBox(height: 4),
@@ -80,10 +87,7 @@ class _AdminPageState extends State<AdminPage> {
                         value: rolesDisponibles.contains(rol) ? rol : null,
                         hint: const Text("Asignar rol"),
                         items: rolesDisponibles.map((r) {
-                          return DropdownMenuItem(
-                            value: r,
-                            child: Text(r),
-                          );
+                          return DropdownMenuItem(value: r, child: Text(r));
                         }).toList(),
                         onChanged: (nuevoRol) {
                           if (nuevoRol != null) {
@@ -93,12 +97,12 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                       const SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: activo ? null : () => activarUsuario(uid),
+                        onPressed: () => toggleActivo(uid, activo),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: activo ? Colors.green : Colors.blue,
+                          backgroundColor: activo ? Colors.red : Colors.green,
                           minimumSize: const Size.fromHeight(40),
                         ),
-                        child: Text(activo ? "Activo" : "Activar"),
+                        child: Text(activo ? "Desactivar" : "Activar"),
                       ),
                     ],
                   ),

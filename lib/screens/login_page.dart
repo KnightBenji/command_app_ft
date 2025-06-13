@@ -180,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      String mensaje = "Error desconocido";
+      String mensaje = "Correo y/o contraseña incorrecta, intenta nuevamente";
       if (e.code == 'user-not-found') {
         mensaje = 'Usuario no encontrado';
       } else if (e.code == 'wrong-password') {

@@ -37,7 +37,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 const Icon(Icons.lock, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
                 const Text(
-                  'Registrar Usuario UA',
+                  'Registrar Usuario',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
