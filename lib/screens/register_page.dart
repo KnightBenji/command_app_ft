@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -145,7 +146,6 @@ class _RegisterPageState extends State<RegisterPage> {
     String email,
     String password,
   ) async {
-    //Aca viene la logica
     if (nombre.isEmpty || email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -155,34 +155,45 @@ class _RegisterPageState extends State<RegisterPage> {
       );
       return;
     }
+
     try {
       final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password)
-          .then((UserCredential) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Registro exitoso"),
-                backgroundColor: Colors.green,
-              ),
-            );
-            Navigator.pushReplacementNamed(context, '/');
-          })
-          .catchError((error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(error.message),
-                backgroundColor: Colors.red,
-              ),
-            );
-          });
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Obtener UID del usuario recién creado
+      final String uid = credential.user!.uid;
+
+      // Crear el documento en Firestore
+      await FirebaseFirestore.instance.collection('usuarios').doc(uid).set({
+        'nombre': nombre,
+        'email': email,
+        'rol': 'pendiente', // rol por defecto
+        'activo': false, // aún no verificado por el admin
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Cuenta creada. Espera aprobación del administrador."),
+          backgroundColor: Colors.orange,
+        ),
+      );
+
+      Navigator.pushReplacementNamed(context, '/');
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? "Error al registrar usuario"),
+          backgroundColor: Colors.red,
+        ),
+      );
     } catch (e) {
       print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Ocurrió un error inesperado"),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }

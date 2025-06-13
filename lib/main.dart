@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:command_app_ft/screens/login_page.dart';
 import 'package:command_app_ft/screens/register_page.dart';
+import 'package:command_app_ft/screens/cocinero.dart';
+import 'package:command_app_ft/screens/admin_page.dart';
 
 /* Importar librerias de firebase */
 import 'package:firebase_core/firebase_core.dart';
@@ -24,7 +26,10 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
+        '/cocinero': (context) => const CocineroPage(), 
+        '/admin': (context) => const AdminPage(),
       },
     );
   }
 }
+  

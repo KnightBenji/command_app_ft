@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-/* Firebase auth */
+/* Firebase auth y cloud */
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -131,25 +132,66 @@ class _LoginPageState extends State<LoginPage> {
         email: email,
         password: password,
       );
-      //Mostrar una vista de exito
-      showDialog(context: context, builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Inicio de sesión exitoso"),
-            content: Text("Bienvenido a la aplicación"),
-            actions: [
-              TextButton(onPressed: (){
-                Navigator.of(context).pop();
-              }, child: Text("OK"))
-            ],
-          );
-      });
 
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+      final uid = credential.user!.uid;
+      final userDoc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(uid)
+          .get();
+
+      if (!userDoc.exists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("El perfil no existe en la base de datos"),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
       }
+
+      final data = userDoc.data()!;
+      final activo = data['activo'] ?? false;
+      final rol = data['rol'] ?? '';
+
+      if (!activo) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Tu cuenta aún no ha sido activada por un administrador.",
+            ),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        await FirebaseAuth.instance
+            .signOut(); // Cierra sesión si no está activo
+        return;
+      }
+
+      if (rol == 'admin') {
+        Navigator.pushReplacementNamed(context, '/admin');
+      } else if (rol == 'cocinero') {
+        Navigator.pushReplacementNamed(context, '/cocinero');
+      } else if (rol == 'mesero') {
+        Navigator.pushReplacementNamed(context, '/mesero');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Tu cuenta no tiene un rol válido asignado."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String mensaje = "Error desconocido";
+      if (e.code == 'user-not-found') {
+        mensaje = 'Usuario no encontrado';
+      } else if (e.code == 'wrong-password') {
+        mensaje = 'Contraseña incorrecta';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(mensaje), backgroundColor: Colors.red),
+      );
     }
   }
 }
