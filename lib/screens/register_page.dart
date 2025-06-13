@@ -156,25 +156,22 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
     try {
-      final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password)
-          .then((UserCredential) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Registro exitoso"),
-                backgroundColor: Colors.green,
-              ),
-            );
-            Navigator.pushReplacementNamed(context, '/');
-          })
-          .catchError((error) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(error.message),
-                backgroundColor: Colors.red,
-              ),
-            );
-          });
+  // 1. Crear el usuario en Firebase Auth
+  final credential = await FirebaseAuth.instance
+      .createUserWithEmailAndPassword(email: email, password: password);
+
+  // 2. Enviar email de verificación
+  await credential.user?.sendEmailVerification();
+
+  // 3. Mostrar mensaje y navegar a pantalla de verificación
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text("Registro exitoso. Revisa tu correo para verificar tu cuenta."),
+      backgroundColor: Colors.green,
+    ),
+  );  
+
+  Navigator.pushReplacementNamed(context, '/verifyEmail');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');

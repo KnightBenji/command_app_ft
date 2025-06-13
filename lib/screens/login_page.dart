@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 /* Firebase auth */
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -11,14 +10,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  //Controladores de texto para los textfields
+  // Controladores de texto para los textfields
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  /* Libera los recursos que usa el controllador */
   @override
   void dispose() {
-    // TODO: implement dispose
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -36,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.lock, size: 64, color: Colors.red),
-                SizedBox(height: 16), // Espacio de separación
+                const SizedBox(height: 16),
                 const Text(
                   "Login UA",
                   style: TextStyle(
@@ -45,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.red,
                   ),
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 // Campo de texto para el correo del usuario
                 TextField(
                   controller: _emailController,
@@ -61,11 +58,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 // Campo de texto para la contraseña del usuario
                 TextField(
                   controller: _passwordController,
-                  obscureText: true, // Oculta el texto ingresado,
+                  obscureText: true,
                   decoration: InputDecoration(
                     labelText: "Contraseña",
                     prefixIcon: Icon(Icons.lock),
@@ -77,8 +74,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 24),
-                //Boton que ocupa todo el ancho de la pantalla
+                const SizedBox(height: 24),
+                // Botón que ocupa todo el ancho de la pantalla
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
@@ -88,16 +85,15 @@ class _LoginPageState extends State<LoginPage> {
                         _passwordController.text,
                       );
                     },
-                    icon: Icon(Icons.login),
-                    label: Text("Iniciar sesión"),
+                    icon: const Icon(Icons.login),
+                    label: const Text("Iniciar sesión"),
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.red,
-                      padding: EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                   ),
                 ),
-
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/register');
@@ -121,6 +117,8 @@ class _LoginPageState extends State<LoginPage> {
         const SnackBar(
           content: Text("Por favor, completa todos los campos"),
           backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
         ),
       );
       return;
@@ -131,25 +129,51 @@ class _LoginPageState extends State<LoginPage> {
         email: email,
         password: password,
       );
-      //Mostrar una vista de exito
-      showDialog(context: context, builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Inicio de sesión exitoso"),
-            content: Text("Bienvenido a la aplicación"),
-            actions: [
-              TextButton(onPressed: (){
-                Navigator.of(context).pop();
-              }, child: Text("OK"))
-            ],
-          );
-      });
-
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+      if (credential.user?.emailVerified ?? false) {
+        // Acceso permitido: muestra SnackBar de éxito y luego navega
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Inicio de sesión exitoso. Bienvenido a la aplicación."),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+          ),
+        );
+        // Espera que el usuario vea el mensaje antes de navegar
+        await Future.delayed(const Duration(seconds: 2));
+        // Aquí puedes navegar a tu página principal si lo deseas:
+        // Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // No está verificado
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Debes verificar tu correo antes de ingresar."),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+          ),
+        );
+        await Future.delayed(const Duration(seconds: 2));
+        Navigator.pushReplacementNamed(context, '/verifyEmail');
       }
+    } on FirebaseAuthException catch (e) {
+      String msg = "Error desconocido";
+      if (e.code == 'user-not-found') {
+        msg = 'No existe usuario con ese correo.';
+      } else if (e.code == 'wrong-password') {
+        msg = 'Contraseña incorrecta.';
+      } else if (e.message != null) {
+        msg = e.message!;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(msg),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+        ),
+      );
     }
   }
 }

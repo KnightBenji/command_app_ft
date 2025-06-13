@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:command_app_ft/screens/login_page.dart';
 import 'package:command_app_ft/screens/register_page.dart';
+import 'package:command_app_ft/screens/verification_mail_page.dart';
+
 
 /* Importar librerias de firebase */
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +27,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
+        '/verifyEmail': (context) => const VerificationMailPage(),
       },
     );
   }
