@@ -137,7 +137,6 @@ class _RegisterPageState extends State<RegisterPage> {
     // Simular una espera de 2 segundos
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pop(); // Cerrar el diálogo
-      // Aquí puedes agregar la lógica para registrar al usuario
     });
   }
 
@@ -170,15 +169,23 @@ class _RegisterPageState extends State<RegisterPage> {
         'rol': 'pendiente', // rol por defecto
         'activo': false, // aún no verificado por el admin
       });
+      
+      // Enviar email de verificación
+      await credential.user?.sendEmailVerification();
 
+      // Mostrar mensaje y navegar a pantalla de verificación
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Cuenta creada. Espera aprobación del administrador."),
-          backgroundColor: Colors.orange,
+          content: Text(
+            "Registro exitoso. Revisa tu correo para verificar tu cuenta.",
+          ),
+          backgroundColor: Colors.green,
         ),
       );
 
-      Navigator.pushReplacementNamed(context, '/');
+      Navigator.pushReplacementNamed(context, '/verifyEmail');
+
+      
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

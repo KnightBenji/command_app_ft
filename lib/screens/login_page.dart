@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-/* Firebase auth y cloud */
+/* Firebase auth */
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -12,14 +11,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  //Controladores de texto para los textfields
+  // Controladores de texto para los textfields
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  /* Libera los recursos que usa el controllador */
   @override
   void dispose() {
-    // TODO: implement dispose
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -37,16 +34,16 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.lock, size: 64, color: Colors.red),
-                SizedBox(height: 16), // Espacio de separación
+                const SizedBox(height: 16),
                 const Text(
-                  "Login UA",
+                  "comandAPP",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Colors.red,
                   ),
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 // Campo de texto para el correo del usuario
                 TextField(
                   controller: _emailController,
@@ -62,11 +59,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 // Campo de texto para la contraseña del usuario
                 TextField(
                   controller: _passwordController,
-                  obscureText: true, // Oculta el texto ingresado,
+                  obscureText: true,
                   decoration: InputDecoration(
                     labelText: "Contraseña",
                     prefixIcon: Icon(Icons.lock),
@@ -78,8 +75,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 24),
-                //Boton que ocupa todo el ancho de la pantalla
+                const SizedBox(height: 24),
+                // Botón que ocupa todo el ancho de la pantalla
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
@@ -89,16 +86,15 @@ class _LoginPageState extends State<LoginPage> {
                         _passwordController.text,
                       );
                     },
-                    icon: Icon(Icons.login),
-                    label: Text("Iniciar sesión"),
+                    icon: const Icon(Icons.login),
+                    label: const Text("Iniciar sesión"),
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.red,
-                      padding: EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                   ),
                 ),
-
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/register');
@@ -122,6 +118,8 @@ class _LoginPageState extends State<LoginPage> {
         const SnackBar(
           content: Text("Por favor, completa todos los campos"),
           backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
         ),
       );
       return;
