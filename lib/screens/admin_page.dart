@@ -15,22 +15,36 @@ class _AdminPageState extends State<AdminPage> {
 
   void actualizarRol(String uid, String nuevoRol) async {
     await _firestore.collection('usuarios').doc(uid).update({'rol': nuevoRol});
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Rol actualizado a $nuevoRol')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Rol actualizado a $nuevoRol')),
+    );
   }
 
-  void toggleActivo(String uid, bool estadoActual) async {
-    await _firestore.collection('usuarios').doc(uid).update({
-      'activo': !estadoActual,
-    });
+  void cambiarEstadoUsuario(String uid, bool estadoActual) async {
+    await _firestore.collection('usuarios').doc(uid).update({'activo': !estadoActual});
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          estadoActual ? 'Usuario desactivado' : 'Usuario activado',
-        ),
+      SnackBar(content: Text(estadoActual ? 'Usuario desactivado' : 'Usuario activado')),
+    );
+  }
+
+  void eliminarUsuario(String uid, String nombre) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar eliminación'),
+        content: Text('¿Seguro que deseas eliminar a $nombre?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Eliminar')),
+        ],
       ),
     );
+    if (confirm == true) {
+      await _firestore.collection('usuarios').doc(uid).delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuario eliminado')),
+      );
+    }
   }
 
   void cerrarSesion() async {
@@ -46,14 +60,16 @@ class _AdminPageState extends State<AdminPage> {
       appBar: AppBar(
         title: const Text('Panel de Administrador'),
         actions: [
-          IconButton(icon: const Icon(Icons.logout), onPressed: cerrarSesion),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: cerrarSesion,
+          ),
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore.collection('usuarios').snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
-            return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
 
           final usuarios = snapshot.data!.docs;
 
@@ -74,10 +90,7 @@ class _AdminPageState extends State<AdminPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        nombre,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      Text(nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
                       Text('Email: $email'),
                       const SizedBox(height: 4),
@@ -87,7 +100,10 @@ class _AdminPageState extends State<AdminPage> {
                         value: rolesDisponibles.contains(rol) ? rol : null,
                         hint: const Text("Asignar rol"),
                         items: rolesDisponibles.map((r) {
-                          return DropdownMenuItem(value: r, child: Text(r));
+                          return DropdownMenuItem(
+                            value: r,
+                            child: Text(r),
+                          );
                         }).toList(),
                         onChanged: (nuevoRol) {
                           if (nuevoRol != null) {
@@ -97,12 +113,21 @@ class _AdminPageState extends State<AdminPage> {
                       ),
                       const SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: () => toggleActivo(uid, activo),
+                        onPressed: () => cambiarEstadoUsuario(uid, activo),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: activo ? Colors.red : Colors.green,
+                          backgroundColor: activo ? Colors.green : Colors.blue,
                           minimumSize: const Size.fromHeight(40),
                         ),
-                        child: Text(activo ? "Desactivar" : "Activar"),
+                        child: Text(activo ? "Activo (Desactivar)" : "Activar"),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: () => eliminarUsuario(uid, nombre),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          minimumSize: const Size.fromHeight(40),
+                        ),
+                        child: const Text("Eliminar usuario"),
                       ),
                     ],
                   ),
