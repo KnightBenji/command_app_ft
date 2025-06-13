@@ -35,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
                 const Icon(Icons.lock, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
                 const Text(
-                  "Login UA",
+                  "comandAPP",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -143,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
         // Espera que el usuario vea el mensaje antes de navegar
         await Future.delayed(const Duration(seconds: 2));
         // Aquí puedes navegar a tu página principal si lo deseas:
-        // Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/home');
       } else {
         // No está verificado
         ScaffoldMessenger.of(context).showSnackBar(

@@ -136,7 +136,7 @@ class _RegisterPageState extends State<RegisterPage> {
     // Simular una espera de 2 segundos
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pop(); // Cerrar el diálogo
-      // Aquí puedes agregar la lógica para registrar al usuario
+      
     });
   }
 
@@ -156,14 +156,14 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
     try {
-  // 1. Crear el usuario en Firebase Auth
+  // Crear el usuario en Firebase Auth
   final credential = await FirebaseAuth.instance
       .createUserWithEmailAndPassword(email: email, password: password);
 
-  // 2. Enviar email de verificación
+  // Enviar email de verificación
   await credential.user?.sendEmailVerification();
 
-  // 3. Mostrar mensaje y navegar a pantalla de verificación
+  // Mostrar mensaje y navegar a pantalla de verificación
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(
       content: Text("Registro exitoso. Revisa tu correo para verificar tu cuenta."),
