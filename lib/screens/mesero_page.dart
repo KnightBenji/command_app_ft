@@ -9,6 +9,7 @@ class MeseroPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, 
         title: const Text("Panel del Mesero"),
         backgroundColor: Colors.red,
         actions: [
