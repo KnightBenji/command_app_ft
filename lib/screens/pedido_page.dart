@@ -5,145 +5,154 @@ class PedidoPage extends StatefulWidget {
   const PedidoPage({super.key});
 
   @override
-  _PedidoPageState createState() => _PedidoPageState();
+  State<PedidoPage> createState() => _PedidoPageState();
 }
 
 class _PedidoPageState extends State<PedidoPage> {
-  Map<String, int> cantidades = {};
-  String _busqueda = '';
+  String? categoriaSeleccionada;
+  TextEditingController searchController = TextEditingController();
+  String searchQuery = '';
+  Map<String, int> cantidades = {}; // Almacena cantidades por producto
 
-  // Agrupa productos por categoría
-  Future<Map<String, List<DocumentSnapshot>>> getProductosAgrupados() async {
+  Future<List<QueryDocumentSnapshot>> obtenerProductos() async {
     final snapshot = await FirebaseFirestore.instance.collection('productos').get();
-    final productos = snapshot.docs;
+    return snapshot.docs;
+  }
 
-    final Map<String, List<DocumentSnapshot>> agrupado = {};
-
-    for (var producto in productos) {
-      final categoria = producto['categoria'] ?? 'Sin categoría';
-      agrupado.putIfAbsent(categoria, () => []).add(producto);
-      cantidades[producto.id] = 1;
-    }
-
-    return agrupado;
+  List<String> extraerCategorias(List<QueryDocumentSnapshot> productos) {
+    final categorias = productos.map((p) => p['categoria'].toString()).toSet().toList();
+    categorias.sort();
+    return categorias;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Hacer Pedido"),
+        title: const Text('Hacer Pedido'),
         backgroundColor: Colors.red,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: TextField(
-              decoration: const InputDecoration(
-                labelText: 'Buscar producto',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _busqueda = value.toLowerCase();
-                });
-              },
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<Map<String, List<DocumentSnapshot>>>(
-              future: getProductosAgrupados(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+      drawer: Drawer(
+        child: FutureBuilder(
+          future: obtenerProductos(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) return const Center(child: Text("Error al cargar categorías"));
+            final productos = snapshot.data!;
+            final categorias = extraerCategorias(productos);
 
-                if (snapshot.hasError) {
-                  return const Center(child: Text('Error al cargar los productos'));
-                }
+            return ListView(
+              children: [
+                const DrawerHeader(
+                  decoration: BoxDecoration(color: Colors.red),
+                  child: Text('Categorías', style: TextStyle(color: Colors.white, fontSize: 24)),
+                ),
+                for (var cat in categorias)
+                  ListTile(
+                    title: Text(cat),
+                    selected: categoriaSeleccionada == cat,
+                    onTap: () {
+                      setState(() {
+                        categoriaSeleccionada = cat;
+                        Navigator.pop(context); // cerrar drawer
+                      });
+                    },
+                  )
+              ],
+            );
+          },
+        ),
+      ),
+      body: FutureBuilder(
+        future: obtenerProductos(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) return const Center(child: Text("Error al cargar productos"));
+          final productos = snapshot.data!;
+          final productosFiltrados = productos.where((producto) {
+            final nombre = producto['nombre'].toString().toLowerCase();
+            final coincideBusqueda = nombre.contains(searchQuery.toLowerCase());
+            final coincideCategoria = categoriaSeleccionada == null ||
+                producto['categoria'] == categoriaSeleccionada;
+            return coincideBusqueda && coincideCategoria;
+          }).toList();
 
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No hay productos disponibles'));
-                }
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    labelText: 'Buscar producto',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: productosFiltrados.isEmpty
+                      ? const Center(child: Text("No hay productos que coincidan"))
+                      : ListView.builder(
+                          itemCount: productosFiltrados.length,
+                          itemBuilder: (context, index) {
+                            final producto = productosFiltrados[index];
+                            final id = producto.id;
+                            final nombre = producto['nombre'];
+                            final precio = producto['precio'];
 
-                final categorias = snapshot.data!;
+                            cantidades[id] = cantidades[id] ?? 0;
 
-                return ListView(
-                  children: categorias.entries.map((entry) {
-                    final categoria = entry.key;
-                    final productos = entry.value.where((producto) {
-                      final nombre = (producto['nombre'] ?? '').toString().toLowerCase();
-                      return _busqueda.isEmpty || nombre.contains(_busqueda);
-                    }).toList();
-
-                    if (productos.isEmpty) return const SizedBox.shrink();
-
-                    return ExpansionTile(
-                      initiallyExpanded: _busqueda.isNotEmpty,
-                      title: Text(categoria, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      children: productos.map((producto) {
-                        final id = producto.id;
-                        final nombre = producto['nombre'];
-                        final precio = producto['precio'];
-
-                        return Card(
-                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 4),
-                                Text('Precio: \$${precio}'),
-                                const SizedBox(height: 8),
-                                Row(
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.remove),
-                                      onPressed: () {
-                                        setState(() {
-                                          if (cantidades[id]! > 1) cantidades[id] = cantidades[id]! - 1;
-                                        });
-                                      },
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(nombre, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                                        const SizedBox(height: 4),
+                                        Text('Precio: \$${precio.toString()}'),
+                                      ],
                                     ),
-                                    Text('${cantidades[id]}', style: const TextStyle(fontSize: 20)),
-                                    IconButton(
-                                      icon: const Icon(Icons.add),
-                                      onPressed: () {
-                                        setState(() {
-                                          cantidades[id] = cantidades[id]! + 1;
-                                        });
-                                      },
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.remove),
+                                          onPressed: cantidades[id]! > 0
+                                              ? () => setState(() => cantidades[id] = cantidades[id]! - 1)
+                                              : null,
+                                        ),
+                                        Text('${cantidades[id]}', style: const TextStyle(fontSize: 20)),
+                                        IconButton(
+                                          icon: const Icon(Icons.add),
+                                          onPressed: () => setState(() => cantidades[id] = cantidades[id]! + 1),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Producto: $nombre x${cantidades[id]} agregado al pedido'),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                  child: const Text("Agregar al Pedido"),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  }).toList(),
-                );
-              },
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
