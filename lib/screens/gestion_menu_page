@@ -13,13 +13,21 @@ class _GestionMenuPageState extends State<GestionMenuPage> {
 
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _precioController = TextEditingController();
-  final TextEditingController _categoriaController = TextEditingController();
   final TextEditingController _descripcionController = TextEditingController();
+
+  final List<String> categoriasDisponibles = [
+    'Sandwiches',
+    'Bebidas',
+    'Postres',
+    'Café',
+    'Platos Principales',
+  ];
+  String? categoriaSeleccionada;
 
   Future<void> agregarProducto() async {
     final nombre = _nombreController.text.trim();
     final precio = int.tryParse(_precioController.text.trim());
-    final categoria = _categoriaController.text.trim();
+    final categoria = categoriaSeleccionada?.trim() ?? '';
     final descripcion = _descripcionController.text.trim();
 
     if (nombre.isEmpty || precio == null || categoria.isEmpty || descripcion.isEmpty) {
@@ -47,8 +55,10 @@ class _GestionMenuPageState extends State<GestionMenuPage> {
 
     _nombreController.clear();
     _precioController.clear();
-    _categoriaController.clear();
     _descripcionController.clear();
+    setState(() {
+      categoriaSeleccionada = null;
+    });
   }
 
   Future<void> eliminarProducto(String docId, String nombre) async {
@@ -94,8 +104,19 @@ class _GestionMenuPageState extends State<GestionMenuPage> {
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(labelText: 'Precio'),
                 ),
-                TextField(
-                  controller: _categoriaController,
+                DropdownButtonFormField<String>(
+                  value: categoriaSeleccionada,
+                  items: categoriasDisponibles.map((cat) {
+                    return DropdownMenuItem(
+                      value: cat,
+                      child: Text(cat),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      categoriaSeleccionada = value;
+                    });
+                  },
                   decoration: const InputDecoration(labelText: 'Categoría'),
                 ),
                 TextField(
