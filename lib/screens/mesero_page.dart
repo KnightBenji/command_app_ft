@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'pedido_page.dart';  // Importa PedidoPage
 
 class MeseroPage extends StatelessWidget {
   const MeseroPage({super.key});
@@ -26,6 +27,17 @@ class MeseroPage extends StatelessWidget {
           "¡Bienvenido, Mesero!",
           style: TextStyle(fontSize: 24),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navegar a la página de crear pedido
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PedidoPage()),
+          );
+        },
+        backgroundColor: Colors.red,
+        child: const Icon(Icons.add),
       ),
     );
   }
