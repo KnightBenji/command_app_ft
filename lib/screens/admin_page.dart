@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class AdminPage extends StatefulWidget {
+class AdminPage extends StatelessWidget {
   const AdminPage({super.key});
 
+<<<<<<< Updated upstream
   @override
   State<AdminPage> createState() => _AdminPageState();
 }
@@ -48,6 +48,9 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   void cerrarSesion() async {
+=======
+>>>>>>> Stashed changes
+  void cerrarSesion(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     if (context.mounted) {
       Navigator.pushReplacementNamed(context, '/');
@@ -58,84 +61,60 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Panel de Administrador'),
+        title: const Text('Panel de Administración'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: cerrarSesion,
+            onPressed: () => cerrarSesion(context),
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore.collection('usuarios').snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-
-          final usuarios = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: usuarios.length,
-            itemBuilder: (context, index) {
-              final user = usuarios[index];
-              final uid = user.id;
-              final nombre = user['nombre'];
-              final email = user['email'];
-              final rol = user['rol'];
-              final activo = user['activo'];
-
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      Text('Email: $email'),
-                      const SizedBox(height: 4),
-                      Text('Rol actual: $rol'),
-                      const SizedBox(height: 8),
-                      DropdownButton<String>(
-                        value: rolesDisponibles.contains(rol) ? rol : null,
-                        hint: const Text("Asignar rol"),
-                        items: rolesDisponibles.map((r) {
-                          return DropdownMenuItem(
-                            value: r,
-                            child: Text(r),
-                          );
-                        }).toList(),
-                        onChanged: (nuevoRol) {
-                          if (nuevoRol != null) {
-                            actualizarRol(uid, nuevoRol);
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: () => cambiarEstadoUsuario(uid, activo),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: activo ? Colors.green : Colors.blue,
-                          minimumSize: const Size.fromHeight(40),
-                        ),
-                        child: Text(activo ? "Activo (Desactivar)" : "Activar"),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () => eliminarUsuario(uid, nombre),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          minimumSize: const Size.fromHeight(40),
-                        ),
-                        child: const Text("Eliminar usuario"),
-                      ),
-                    ],
-                  ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                icon: const Icon(Icons.supervised_user_circle),
+                label: const Text('Gestión de Roles'),
+                onPressed: () => Navigator.pushNamed(context, '/gestionRol'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
                 ),
+<<<<<<< Updated upstream
               );
             },
           );
         },
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                icon: const Icon(Icons.supervised_user_circle),
+                label: const Text('Gestión de Roles'),
+                onPressed: () => Navigator.pushNamed(context, '/gestionRol'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                ),
+=======
+>>>>>>> Stashed changes
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.restaurant_menu),
+                label: const Text('Gestión de Menú'),
+                onPressed: () => Navigator.pushNamed(context, '/gestionMenu'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

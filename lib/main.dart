@@ -4,6 +4,8 @@ import 'package:command_app_ft/screens/register_page.dart';
 import 'package:command_app_ft/screens/cocinero.dart';
 import 'package:command_app_ft/screens/admin_page.dart';
 import 'package:command_app_ft/screens/verification_mail_page.dart';
+import 'package:command_app_ft/screens/gestion_menu_page';
+import 'package:command_app_ft/screens/gestion_rol_page';
 
 
 
@@ -33,6 +35,9 @@ class MyApp extends StatelessWidget {
         '/cocinero': (context) => const CocineroPage(), 
         '/admin': (context) => const AdminPage(),
         '/verifyEmail': (context) => const VerificationMailPage(),
+        '/gestionMenu': (context) => const GestionMenuPage(),
+        '/gestionRol': (context) => const GestionRolPage(),
+
       },
     );
   }
