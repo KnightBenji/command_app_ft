@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'pedido_page.dart';
@@ -79,11 +80,81 @@ class MeseroPage extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text(
-          "¡Bienvenido, Mesero!",
-          style: TextStyle(fontSize: 24),
-        ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('pedidos')
+            .where('estado', isEqualTo: 'listo')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final pedidosListos = snapshot.data?.docs ?? [];
+
+          if (pedidosListos.isEmpty) {
+            return const Center(child: Text("No hay pedidos listos para entregar."));
+          }
+
+          return ListView.builder(
+            itemCount: pedidosListos.length,
+            itemBuilder: (context, index) {
+              final pedido = pedidosListos[index];
+              final mesa = pedido['mesa'];
+              final productos = List.from(pedido['productos']);
+
+              return Card(
+                margin: const EdgeInsets.all(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("PEDIDO LISTO PARA LLEVAR", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const SizedBox(height: 6),
+                      Text("Mesa: $mesa", style: TextStyle(fontSize: 18)),
+                      const SizedBox(height: 6),
+                      ...productos.map((p) => Text("${p['cantidad']} x ${p['nombre']}")),
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                          icon: const Icon(Icons.check_circle, color: Colors.green),
+                          tooltip: "Marcar como entregado",
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("¿Marcar como entregado?"),
+                                content: const Text("Esto eliminará el pedido de la vista del mesero."),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("Cancelar"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                      await FirebaseFirestore.instance
+                                          .collection('pedidos')
+                                          .doc(pedido.id)
+                                          .delete();
+                                    },
+                                    child: const Text("Confirmar"),
+                                  )
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _seleccionarMesa(context),
