@@ -1,8 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class PedidoPage extends StatelessWidget {
+class PedidoPage extends StatefulWidget {
   const PedidoPage({super.key});
+
+  @override
+  _PedidoPageState createState() => _PedidoPageState();
+}
+
+class _PedidoPageState extends State<PedidoPage> {
+  int cantidad = 1;
+
+  // Recuperamos los productos de Firebase
+  Future<QuerySnapshot> getProductos() {
+    return FirebaseFirestore.instance.collection('productos').get();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,8 +24,7 @@ class PedidoPage extends StatelessWidget {
         backgroundColor: Colors.red,
       ),
       body: FutureBuilder(
-        // Aquí estamos recuperando los productos desde Firestore
-        future: FirebaseFirestore.instance.collection('productos').get(),
+        future: getProductos(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -27,33 +38,70 @@ class PedidoPage extends StatelessWidget {
             return const Center(child: Text('No hay productos disponibles'));
           }
 
-          // Aquí se muestran los productos en una lista
           final productos = snapshot.data!.docs;
+
           return ListView.builder(
             itemCount: productos.length,
             itemBuilder: (context, index) {
               var producto = productos[index];
-              return ListTile(
-                title: Text(producto['nombre']),
-                subtitle: Text('Precio: \$${producto['precio']}'),
-                onTap: () {
-                  // Aquí puedes añadir lógica para seleccionar un producto y agregarlo al pedido
-                  showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: Text(producto['nombre']),
-                      content: Text(producto['descripcion']),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text("Cerrar"),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        producto['nombre'],
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text('Precio: \$${producto['precio']}'),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove),
+                            onPressed: () {
+                              if (cantidad > 1) {
+                                setState(() {
+                                  cantidad--;
+                                });
+                              }
+                            },
+                          ),
+                          Text(
+                            '$cantidad',
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: () {
+                              setState(() {
+                                cantidad++;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Lógica para agregar al pedido (en Firestore o en el carrito)
+                          // Aquí puedes agregar el producto y la cantidad seleccionada al pedido
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Producto: ${producto['nombre']} x$cantidad agregado al pedido'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom( backgroundColor: Colors.red,),
+                        child: const Text("Agregar al Pedido"),
+                      ),
+                    ],
+                  ),
+                ),
               );
             },
           );
