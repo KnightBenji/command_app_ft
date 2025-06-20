@@ -1,15 +1,71 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'pedido_page.dart';  // Importa PedidoPage
+import 'pedido_page.dart';
 
 class MeseroPage extends StatelessWidget {
   const MeseroPage({super.key});
+
+  void _seleccionarMesa(BuildContext context) {
+    String? mesaSeleccionada;
+    final List<String> mesas = ['Mesa 1', 'Mesa 2', 'Mesa 3', 'Mesa 4'];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: const Text('Selecciona una mesa'),
+            content: DropdownButtonFormField<String>(
+              decoration: const InputDecoration(
+                labelText: 'Mesa',
+                border: OutlineInputBorder(),
+              ),
+              value: mesaSeleccionada,
+              items: mesas.map((mesa) {
+                return DropdownMenuItem(
+                  value: mesa,
+                  child: Text(mesa),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  mesaSeleccionada = value;
+                });
+              },
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancelar"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (mesaSeleccionada != null) {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PedidoPage(
+                          nombreMesa: mesaSeleccionada!,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: const Text("Continuar"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         title: const Text("Panel del Mesero"),
         backgroundColor: Colors.red,
         actions: [
@@ -30,13 +86,7 @@ class MeseroPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navegar a la página de crear pedido
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const PedidoPage()),
-          );
-        },
+        onPressed: () => _seleccionarMesa(context),
         backgroundColor: Colors.red,
         child: const Icon(Icons.add),
       ),

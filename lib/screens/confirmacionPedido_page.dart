@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ConfirmacionPedidoPage extends StatelessWidget {
   final List<Map<String, dynamic>> pedido;
+  final String nombreMesa;
 
-  const ConfirmacionPedidoPage({super.key, required this.pedido});
+  const ConfirmacionPedidoPage({
+    super.key,
+    required this.pedido,
+    required this.nombreMesa,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Resumen del Pedido"),
+        title: Text("Resumen del Pedido - $nombreMesa"),
         backgroundColor: Colors.green,
       ),
       body: Padding(
@@ -41,12 +47,27 @@ class ConfirmacionPedidoPage extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton.icon(
-          onPressed: () {
-            // Aquí puedes guardar en Firebase o ir a otra pantalla
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Pedido confirmado con éxito.")),
-            );
-            Navigator.pop(context); // Volver a pantalla anterior, si deseas
+          onPressed: () async {
+            try {
+              await FirebaseFirestore.instance.collection('pedidos').add({
+                'mesa': nombreMesa,
+                'productos': pedido,
+                'estado': 'pendiente',
+                'timestamp': FieldValue.serverTimestamp(),
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Pedido enviado a cocina con éxito.")),
+              );
+
+              // Volver a MeseroPage (cerrar Confirmación y PedidoPage)
+              Navigator.pop(context);
+              Navigator.pop(context);
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Error al guardar pedido: $e")),
+              );
+            }
           },
           icon: const Icon(Icons.check),
           label: const Text("Confirmar Pedido"),

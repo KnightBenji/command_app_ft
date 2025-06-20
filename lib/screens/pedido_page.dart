@@ -1,11 +1,13 @@
+// pedido_page.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'confirmacionPedido_page.dart';
 
-
 class PedidoPage extends StatefulWidget {
-  const PedidoPage({super.key});
+  final String nombreMesa;
+
+  const PedidoPage({super.key, required this.nombreMesa});
 
   @override
   State<PedidoPage> createState() => _PedidoPageState();
@@ -75,7 +77,7 @@ class _PedidoPageState extends State<PedidoPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hacer Pedido'),
+        title: Text('Hacer Pedido - ${widget.nombreMesa}'),
         backgroundColor: Colors.red,
         actions: [
           TextButton(
@@ -247,15 +249,17 @@ class _PedidoPageState extends State<PedidoPage> {
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                    onPressed: () {
-                    Navigator.push(
+                onPressed: () {
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => ConfirmacionPedidoPage(pedido: pedido),
+                      builder: (context) => ConfirmacionPedidoPage(
+                        pedido: pedido,
+                        nombreMesa: widget.nombreMesa,
                       ),
-                    );
-                  },
-
+                    ),
+                  );
+                },
                 child: const Text("CONTINUAR"),
               )
             ],
