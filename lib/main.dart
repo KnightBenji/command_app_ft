@@ -4,8 +4,10 @@ import 'package:command_app_ft/screens/register_page.dart';
 import 'package:command_app_ft/screens/cocinero.dart';
 import 'package:command_app_ft/screens/admin_page.dart';
 import 'package:command_app_ft/screens/verification_mail_page.dart';
-import 'package:command_app_ft/screens/gestion_menu_page';
-import 'package:command_app_ft/screens/gestion_rol_page';
+import 'package:command_app_ft/screens/gestion_menu_page.dart';
+import 'package:command_app_ft/screens/gestion_rol_page.dart';
+import 'package:command_app_ft/screens/cambiar_clave_page.dart';
+import 'package:command_app_ft/screens/recuperar_clave_page.dart';
 
 
 
@@ -37,7 +39,8 @@ class MyApp extends StatelessWidget {
         '/verifyEmail': (context) => const VerificationMailPage(),
         '/gestionMenu': (context) => const GestionMenuPage(),
         '/gestionRol': (context) => const GestionRolPage(),
-
+        '/cambiarClave': (context) => const CambiarClavePage(),
+        '/recuperarClave': (context) => const RecuperarClavePage(),
       },
     );
   }

@@ -136,6 +136,17 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 16),
+
+                // Botón volver al login
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    "¿Ya tienes cuenta? Inicia sesión",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
               ],
             ),
           ),

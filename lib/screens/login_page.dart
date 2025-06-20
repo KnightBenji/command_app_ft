@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-/* Firebase auth */
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -11,7 +10,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // Controladores de texto para los textfields
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -44,13 +42,14 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                // Campo de texto para el correo del usuario
+
+                // Correo
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: "Correo electrónico",
-                    prefixIcon: Icon(Icons.email),
+                    prefixIcon: const Icon(Icons.email),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -60,13 +59,14 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Campo de texto para la contraseña del usuario
+
+                // Contraseña
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: "Contraseña",
-                    prefixIcon: Icon(Icons.lock),
+                    prefixIcon: const Icon(Icons.lock),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -75,8 +75,24 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-                // Botón que ocupa todo el ancho de la pantalla
+
+                // ¿Olvidaste tu clave?
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/recuperarClave');
+                    },
+                    child: const Text(
+                      "¿Olvidaste tu clave?",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Botón login
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
@@ -95,6 +111,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Link a registro
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/register');
@@ -160,8 +178,7 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: Colors.orange,
           ),
         );
-        await FirebaseAuth.instance
-            .signOut(); // Cierra sesión si no está activo
+        await FirebaseAuth.instance.signOut();
         return;
       }
 
