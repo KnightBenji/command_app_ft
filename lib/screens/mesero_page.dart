@@ -69,14 +69,27 @@ class MeseroPage extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: const Text("Panel del Mesero"),
         backgroundColor: Colors.red,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: "Cerrar sesión",
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+        actions:[
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.settings),
+            onSelected: (value) async {
+              if (value == 'cerrar') {
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+              } else if (value == 'cambiar') {
+                Navigator.pushNamed(context, '/cambiarClave');
+              }
             },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'cambiar',
+                child: Text('Cambiar clave'),
+              ),
+              const PopupMenuItem(
+                value: 'cerrar',
+                child: Text('Cerrar sesión'),
+              ),
+            ],
           ),
         ],
       ),
