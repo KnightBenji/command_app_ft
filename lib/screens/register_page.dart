@@ -10,16 +10,18 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  //Controladores de texto para los textfields
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   @override
   void dispose() {
     _nombreController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -93,9 +95,26 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+
+                // Campo confirmar contraseña
+                TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Confirmar contraseña',
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 24),
 
-                // Botón register
+                // Botón registrar
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
@@ -125,30 +144,28 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void animacion() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return const Center(child: CircularProgressIndicator());
-      },
-    );
-
-    // Simular una espera de 2 segundos
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop(); // Cerrar el diálogo
-    });
-  }
-
   Future<void> fnRegistrarUsuario(
     String nombre,
     String email,
     String password,
   ) async {
-    if (nombre.isEmpty || email.isEmpty || password.isEmpty) {
+    if (nombre.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        _confirmPasswordController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Por favor, completa todos los campos"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (password != _confirmPasswordController.text.trim()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Las contraseñas no coinciden"),
           backgroundColor: Colors.red,
         ),
       );
@@ -159,21 +176,17 @@ class _RegisterPageState extends State<RegisterPage> {
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
 
-      // Obtener UID del usuario recién creado
       final String uid = credential.user!.uid;
 
-      // Crear el documento en Firestore
       await FirebaseFirestore.instance.collection('usuarios').doc(uid).set({
         'nombre': nombre,
         'email': email,
-        'rol': 'pendiente', // rol por defecto
-        'activo': false, // aún no verificado por el admin
+        'rol': 'pendiente',
+        'activo': false,
       });
-      
-      // Enviar email de verificación
+
       await credential.user?.sendEmailVerification();
 
-      // Mostrar mensaje y navegar a pantalla de verificación
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -184,8 +197,6 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       Navigator.pushReplacementNamed(context, '/verifyEmail');
-
-      
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
