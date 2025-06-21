@@ -53,6 +53,9 @@ class MeseroPage extends StatelessWidget {
                     );
                   }
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF8C42), // Naranjo
+                ),
                 child: const Text("Continuar"),
               ),
             ],
@@ -65,13 +68,15 @@ class MeseroPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5), // Gris claro
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Panel del Mesero"),
-        backgroundColor: Colors.red,
-        actions:[
+        title: const Text("Panel del Mesero", style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFFFF8C42), // Naranjo
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
           PopupMenuButton<String>(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings, color: Colors.white),
             onSelected: (value) async {
               if (value == 'cerrar') {
                 await FirebaseAuth.instance.signOut();
@@ -106,7 +111,12 @@ class MeseroPage extends StatelessWidget {
           final pedidosListos = snapshot.data?.docs ?? [];
 
           if (pedidosListos.isEmpty) {
-            return const Center(child: Text("No hay pedidos listos para entregar."));
+            return const Center(
+              child: Text(
+                "No hay pedidos listos para entregar.",
+                style: TextStyle(fontSize: 16),
+              ),
+            );
           }
 
           return ListView.builder(
@@ -117,15 +127,20 @@ class MeseroPage extends StatelessWidget {
               final productos = List.from(pedido['productos']);
 
               return Card(
-                margin: const EdgeInsets.all(12),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 4,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("PEDIDO LISTO PARA LLEVAR", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const Text(
+                        "PEDIDO LISTO PARA LLEVAR",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
                       const SizedBox(height: 6),
-                      Text("Mesa: $mesa", style: TextStyle(fontSize: 18)),
+                      Text("Mesa: $mesa", style: const TextStyle(fontSize: 18)),
                       const SizedBox(height: 6),
                       ...productos.map((p) => Text("${p['cantidad']} x ${p['nombre']}")),
                       const SizedBox(height: 12),
@@ -171,7 +186,7 @@ class MeseroPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _seleccionarMesa(context),
-        backgroundColor: Colors.red,
+        backgroundColor: const Color(0xFFFF8C42), // Naranjo
         child: const Icon(Icons.add),
       ),
     );

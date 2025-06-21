@@ -1,3 +1,4 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +49,7 @@ class _VerificationMailPageState extends State<VerificationMailPage> {
             backgroundColor: Colors.green,
           ),
         );
-        print("Correo de verificación enviado a: ${user.email}");
+        print("Correo de verificación enviado a: \${user.email}");
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -58,10 +59,10 @@ class _VerificationMailPageState extends State<VerificationMailPage> {
         );
       }
     } catch (e) {
-      print("Error al reenviar correo de verificación: $e");
+      print("Error al reenviar correo de verificación: \$e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Ocurrió un error al reenviar: $e"),
+          content: Text("Ocurrió un error al reenviar: \$e"),
           backgroundColor: Colors.red,
         ),
       );
@@ -72,6 +73,7 @@ class _VerificationMailPageState extends State<VerificationMailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -79,39 +81,48 @@ class _VerificationMailPageState extends State<VerificationMailPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.mail, size: 64, color: Colors.red),
-                SizedBox(height: 24),
-                Text(
+                const Icon(Icons.mail_outline, size: 64, color: Color(0xFFFF8C42)),
+                const SizedBox(height: 24),
+                const Text(
                   'Verifica tu correo electrónico',
                   style: TextStyle(
                     fontSize: 22,
-                    color: Colors.red,
+                    color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Hemos enviado un correo de verificación a tu dirección. '
                   'Por favor, revisa tu bandeja de entrada (y la carpeta SPAM) y haz click en el enlace para verificar tu cuenta.',
                   textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.black87),
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 _isLoading
-                    ? CircularProgressIndicator()
+                    ? const CircularProgressIndicator()
                     : ElevatedButton.icon(
-                        icon: Icon(Icons.refresh),
-                        label: Text('Reenviar correo'),
+                        icon: const Icon(Icons.refresh, color: Colors.white),
+                        label: const Text('Reenviar correo', style: TextStyle(color: Colors.white)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: const Color(0xFFFF8C42),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
                         ),
                         onPressed: resendVerificationEmail,
                       ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 ElevatedButton.icon(
-                  icon: Icon(Icons.check),
-                  label: Text('Ya verifiqué mi correo'),
+                  icon: const Icon(Icons.check_circle, color: Colors.white),
+                  label: const Text('Ya verifiqué mi correo', style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                    ),
                   ),
                   onPressed: checkEmailVerified,
                 ),

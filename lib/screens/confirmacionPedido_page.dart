@@ -15,8 +15,12 @@ class ConfirmacionPedidoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Resumen del Pedido - $nombreMesa"),
-        backgroundColor: Colors.green,
+        title: Text(
+          "Resumen del Pedido - $nombreMesa",
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF4CAF50),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -60,7 +64,6 @@ class ConfirmacionPedidoPage extends StatelessWidget {
                 const SnackBar(content: Text("Pedido enviado a cocina con éxito.")),
               );
 
-              // Volver a MeseroPage (cerrar Confirmación y PedidoPage)
               Navigator.pop(context);
               Navigator.pop(context);
             } catch (e) {
@@ -69,10 +72,10 @@ class ConfirmacionPedidoPage extends StatelessWidget {
               );
             }
           },
-          icon: const Icon(Icons.check),
-          label: const Text("Confirmar Pedido"),
+          icon: const Icon(Icons.check, color: Colors.white),
+          label: const Text("Confirmar Pedido", style: TextStyle(color: Colors.white)),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
+            backgroundColor: const Color(0xFF4CAF50),
             padding: const EdgeInsets.symmetric(vertical: 16),
             textStyle: const TextStyle(fontSize: 18),
             shape: RoundedRectangleBorder(

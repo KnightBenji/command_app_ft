@@ -13,8 +13,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
@@ -28,7 +27,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFF0D1B2A),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -36,88 +35,24 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.lock, size: 64, color: Colors.red),
+                const Icon(Icons.person_add_alt_1, size: 72, color: Color(0xFFFF8C42)),
                 const SizedBox(height: 16),
                 const Text(
                   'Registrar Usuario',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 const SizedBox(height: 32),
-
-                // Campo nombre
-                TextField(
-                  controller: _nombreController,
-                  decoration: InputDecoration(
-                    labelText: 'Nombre completo',
-                    prefixIcon: const Icon(Icons.person),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
+                _buildTextField(_nombreController, "Nombre completo", Icons.person),
                 const SizedBox(height: 16),
-
-                // Campo correo
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Correo electrónico',
-                    prefixIcon: const Icon(Icons.email),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
+                _buildTextField(_emailController, "Correo electrónico", Icons.email),
                 const SizedBox(height: 16),
-
-                // Campo contraseña
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Contraseña',
-                    prefixIcon: const Icon(Icons.lock),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
+                _buildTextField(_passwordController, "Contraseña", Icons.lock, obscure: true),
                 const SizedBox(height: 16),
-
-                // Campo confirmar contraseña
-                TextField(
-                  controller: _confirmPasswordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Confirmar contraseña',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
+                _buildTextField(_confirmPasswordController, "Confirmar contraseña", Icons.lock_outline, obscure: true),
                 const SizedBox(height: 24),
-
-                // Botón registrar
                 SizedBox(
                   width: double.infinity,
-                  child: FilledButton.icon(
+                  child: ElevatedButton.icon(
                     onPressed: () {
                       fnRegistrarUsuario(
                         _nombreController.text.trim(),
@@ -125,10 +60,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         _passwordController.text.trim(),
                       );
                     },
-                    icon: const Icon(Icons.login),
-                    label: const Text("Registrar"),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.red,
+                    icon: const Icon(Icons.login, color: Colors.black),
+                    label: const Text("Registrar", style: TextStyle(color: Colors.black)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF8C42),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50),
@@ -136,15 +71,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
-                // Botón volver al login
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: const Text(
                     "¿Ya tienes cuenta? Inicia sesión",
-                    style: TextStyle(color: Colors.red),
+                    style: TextStyle(color: Color(0xFFFF8C42)),
                   ),
                 ),
               ],
@@ -155,74 +87,65 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Future<void> fnRegistrarUsuario(
-    String nombre,
-    String email,
-    String password,
-  ) async {
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool obscure = false}) {
+    return TextField(
+      controller: controller,
+      obscureText: obscure,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
+        prefixIcon: Icon(icon, color: Colors.white70),
+        filled: true,
+        fillColor: const Color(0xFF1B263B),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
+  }
+
+  Future<void> fnRegistrarUsuario(String nombre, String email, String password) async {
     if (nombre.isEmpty ||
         email.isEmpty ||
         password.isEmpty ||
         _confirmPasswordController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Por favor, completa todos los campos"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackbar("Por favor, completa todos los campos", color: Colors.red);
       return;
     }
-
     if (password != _confirmPasswordController.text.trim()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Las contraseñas no coinciden"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackbar("Las contraseñas no coinciden", color: Colors.red);
       return;
     }
 
     try {
-      final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-
+      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       final String uid = credential.user!.uid;
-
       await FirebaseFirestore.instance.collection('usuarios').doc(uid).set({
         'nombre': nombre,
         'email': email,
         'rol': 'pendiente',
         'activo': false,
       });
-
       await credential.user?.sendEmailVerification();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Registro exitoso. Revisa tu correo para verificar tu cuenta.",
-          ),
-          backgroundColor: Colors.green,
-        ),
-      );
-
+      _showSnackbar("Registro exitoso. Revisa tu correo para verificar tu cuenta.", color: Colors.green);
       Navigator.pushReplacementNamed(context, '/verifyEmail');
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message ?? "Error al registrar usuario"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackbar(e.message ?? "Error al registrar usuario", color: Colors.red);
     } catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Ocurrió un error inesperado"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackbar("Ocurrió un error inesperado", color: Colors.red);
     }
+  }
+
+  void _showSnackbar(String message, {required Color color}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      ),
+    );
   }
 }

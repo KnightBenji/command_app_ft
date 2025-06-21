@@ -76,9 +76,14 @@ class _PedidoPageState extends State<PedidoPage> {
     }).toList();
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: Text('Hacer Pedido - ${widget.nombreMesa}'),
-        backgroundColor: Colors.red,
+        backgroundColor: const Color(0xFFFF6F00), // naranjo oscuro
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          'Hacer Pedido - ${widget.nombreMesa}',
+          style: const TextStyle(color: Colors.white),
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -114,7 +119,7 @@ class _PedidoPageState extends State<PedidoPage> {
         child: ListView(
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.red),
+              decoration: BoxDecoration(color: Color(0xFFFF6F00)),
               child: Text('Categorías', style: TextStyle(color: Colors.white, fontSize: 24)),
             ),
             for (var cat in extraerCategorias(productosCargados!))
@@ -169,7 +174,9 @@ class _PedidoPageState extends State<PedidoPage> {
                           cantidades[id] = cantidades[id] ?? 0;
 
                           return Card(
+                            elevation: 2,
                             margin: const EdgeInsets.symmetric(vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             child: Padding(
                               padding: const EdgeInsets.all(16),
                               child: Row(
@@ -244,24 +251,27 @@ class _PedidoPageState extends State<PedidoPage> {
             children: [
               Text("${pedido.length} PRODUCTOS", style: const TextStyle(fontWeight: FontWeight.bold)),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.limeAccent[400],
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ConfirmacionPedidoPage(
-                        pedido: pedido,
-                        nombreMesa: widget.nombreMesa,
-                      ),
-                    ),
-                  );
-                },
-                child: const Text("CONTINUAR"),
-              )
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFFFFD54F),
+    foregroundColor: Colors.black,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  ),
+  onPressed: pedido.isEmpty
+      ? null
+      : () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ConfirmacionPedidoPage(
+                pedido: pedido,
+                nombreMesa: widget.nombreMesa,
+              ),
+            ),
+          );
+        },
+  child: const Text("CONTINUAR"),
+),
+
             ],
           ),
         ),

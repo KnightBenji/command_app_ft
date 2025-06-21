@@ -64,9 +64,11 @@ class _CambiarClavePageState extends State<CambiarClavePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text("Cambiar Clave"),
-        backgroundColor: Colors.red,
+        backgroundColor: const Color(0xFFFF7043),
+        title: const Text("Cambiar Clave", style: TextStyle(color: Colors.white)),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -77,33 +79,60 @@ class _CambiarClavePageState extends State<CambiarClavePage> {
               TextFormField(
                 controller: _claveActualController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Clave actual'),
+                decoration: InputDecoration(
+                  labelText: 'Clave actual',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
                 validator: (value) => value!.isEmpty ? 'Campo requerido' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nuevaClaveController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Nueva clave'),
-                validator: (value) => value!.length < 6
-                    ? 'Debe tener al menos 6 caracteres'
-                    : null,
+                decoration: InputDecoration(
+                  labelText: 'Nueva clave',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+                validator: (value) =>
+                    value!.length < 6 ? 'Debe tener al menos 6 caracteres' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _confirmarClaveController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Confirmar nueva clave'),
-                validator: (value) => value != _nuevaClaveController.text
-                    ? 'Las claves no coinciden'
-                    : null,
+                decoration: InputDecoration(
+                  labelText: 'Confirmar nueva clave',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+                validator: (value) =>
+                    value != _nuevaClaveController.text ? 'Las claves no coinciden' : null,
               ),
               const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: cargando ? null : cambiarClave,
-                child: cargando
-                    ? const CircularProgressIndicator()
-                    : const Text('Actualizar clave'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: cargando ? null : cambiarClave,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFD54F),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: cargando
+                      ? const CircularProgressIndicator(color: Colors.black)
+                      : const Text(
+                          'Actualizar clave',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                ),
               ),
             ],
           ),

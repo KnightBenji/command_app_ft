@@ -85,25 +85,42 @@ class _GestionMenuPageState extends State<GestionMenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5), // Gris claro
       appBar: AppBar(
-        title: const Text('Gestión del Menú'),
+        backgroundColor: const Color(0xFFFF8C42), // Naranjo
+        title: const Text(
+          'Gestión del Menú',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Column(
         children: [
-          // Formulario de agregar producto
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 TextField(
                   controller: _nombreController,
-                  decoration: const InputDecoration(labelText: 'Nombre del producto'),
+                  decoration: InputDecoration(
+                    labelText: 'Nombre del producto',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _precioController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Precio'),
+                  decoration: InputDecoration(
+                    labelText: 'Precio',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
+                const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   value: categoriaSeleccionada,
                   items: categoriasDisponibles.map((cat) {
@@ -117,17 +134,39 @@ class _GestionMenuPageState extends State<GestionMenuPage> {
                       categoriaSeleccionada = value;
                     });
                   },
-                  decoration: const InputDecoration(labelText: 'Categoría'),
-                ),
-                TextField(
-                  controller: _descripcionController,
-                  decoration: const InputDecoration(labelText: 'Descripción'),
+                  decoration: InputDecoration(
+                    labelText: 'Categoría',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
                 const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: agregarProducto,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                  child: const Text('Agregar producto'),
+                TextField(
+                  controller: _descripcionController,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    labelText: 'Descripción',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text('Agregar producto'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: agregarProducto,
+                  ),
                 ),
               ],
             ),
@@ -135,7 +174,6 @@ class _GestionMenuPageState extends State<GestionMenuPage> {
 
           const Divider(),
 
-          // Lista de productos
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _firestore.collection('productos').snapshots(),
@@ -149,6 +187,7 @@ class _GestionMenuPageState extends State<GestionMenuPage> {
                 }
 
                 return ListView.builder(
+                  padding: const EdgeInsets.all(8),
                   itemCount: productos.length,
                   itemBuilder: (context, index) {
                     final prod = productos[index];
@@ -157,12 +196,21 @@ class _GestionMenuPageState extends State<GestionMenuPage> {
                     final precio = prod['precio'];
                     final categoria = prod['categoria'];
 
-                    return ListTile(
-                      title: Text(nombre),
-                      subtitle: Text('Categoría: $categoria\n\$ $precio'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => eliminarProducto(id, nombre),
+                    return Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 3,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(12),
+                        title: Text(
+                          nombre,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text('Categoría: $categoria\n\$ $precio'),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => eliminarProducto(id, nombre),
+                        ),
                       ),
                     );
                   },

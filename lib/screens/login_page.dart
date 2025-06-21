@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF5F5F5), // fondo gris muy claro
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -31,14 +31,14 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.lock, size: 64, color: Colors.red),
+                const Icon(Icons.lock_outline, size: 72, color: Color(0xFFFF8C42)),
                 const SizedBox(height: 16),
                 const Text(
-                  "comandAPP",
+                  "ComandAPP",
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.red,
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -47,16 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: "Correo electrónico",
-                    prefixIcon: const Icon(Icons.email),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
+                  decoration: _inputDecoration("Correo electrónico", Icons.email),
                 ),
                 const SizedBox(height: 16),
 
@@ -64,49 +55,37 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: "Contraseña",
-                    prefixIcon: const Icon(Icons.lock),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
+                  decoration: _inputDecoration("Contraseña", Icons.lock),
                 ),
 
-                // ¿Olvidaste tu clave?
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/recuperarClave');
-                    },
+                    onPressed: () => Navigator.pushNamed(context, '/recuperarClave'),
                     child: const Text(
                       "¿Olvidaste tu clave?",
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(color: Color(0xFFFF8C42)),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
 
                 // Botón login
                 SizedBox(
                   width: double.infinity,
-                  child: FilledButton.icon(
+                  child: ElevatedButton.icon(
                     onPressed: () {
-                      fnIniciarSesion(
-                        _emailController.text,
-                        _passwordController.text,
-                      );
+                      fnIniciarSesion(_emailController.text, _passwordController.text);
                     },
-                    icon: const Icon(Icons.login),
-                    label: const Text("Iniciar sesión"),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.red,
+                    icon: const Icon(Icons.login, color: Colors.white),
+                    label: const Text("Iniciar sesión", style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF8C42),
                       padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
                     ),
                   ),
                 ),
@@ -119,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
                   },
                   child: const Text(
                     "¿No tienes cuenta?, Regístrate",
-                    style: TextStyle(color: Colors.red),
+                    style: TextStyle(color: Color(0xFFFF8C42)),
                   ),
                 ),
               ],
@@ -130,16 +109,22 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: Colors.grey[800]),
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50),
+        borderSide: BorderSide.none,
+      ),
+    );
+  }
+
   Future<void> fnIniciarSesion(String email, String password) async {
     if (email.trim().isEmpty || password.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Por favor, completa todos los campos"),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
-        ),
-      );
+      _showError("Por favor, completa todos los campos");
       return;
     }
 
@@ -150,18 +135,10 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       final uid = credential.user!.uid;
-      final userDoc = await FirebaseFirestore.instance
-          .collection('usuarios')
-          .doc(uid)
-          .get();
+      final userDoc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
 
       if (!userDoc.exists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("El perfil no existe en la base de datos"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showError("El perfil no existe en la base de datos");
         return;
       }
 
@@ -170,14 +147,7 @@ class _LoginPageState extends State<LoginPage> {
       final rol = data['rol'] ?? '';
 
       if (!activo) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Tu cuenta aún no ha sido activada por un administrador.",
-            ),
-            backgroundColor: Colors.orange,
-          ),
-        );
+        _showError("Tu cuenta aún no ha sido activada por un administrador.", orange: true);
         await FirebaseAuth.instance.signOut();
         return;
       }
@@ -189,24 +159,24 @@ class _LoginPageState extends State<LoginPage> {
       } else if (rol == 'mesero') {
         Navigator.pushReplacementNamed(context, '/mesero');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Tu cuenta no tiene un rol válido asignado."),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showError("Tu cuenta no tiene un rol válido asignado.");
       }
     } on FirebaseAuthException catch (e) {
       String mensaje = "Correo y/o contraseña incorrecta, intenta nuevamente";
-      if (e.code == 'user-not-found') {
-        mensaje = 'Usuario no encontrado';
-      } else if (e.code == 'wrong-password') {
-        mensaje = 'Contraseña incorrecta';
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(mensaje), backgroundColor: Colors.red),
-      );
+      if (e.code == 'user-not-found') mensaje = 'Usuario no encontrado';
+      if (e.code == 'wrong-password') mensaje = 'Contraseña incorrecta';
+      _showError(mensaje);
     }
+  }
+
+  void _showError(String mensaje, {bool orange = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+        backgroundColor: orange ? Colors.orange : Colors.red,
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      ),
+    );
   }
 }

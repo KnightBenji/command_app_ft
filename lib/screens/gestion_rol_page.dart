@@ -83,8 +83,14 @@ class _GestionRolPageState extends State<GestionRolPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5), // Fondo claro
       appBar: AppBar(
-        title: const Text('Gestión de Roles'),
+        backgroundColor: const Color(0xFFFF8C42), // Naranjo
+        title: const Text(
+          'Gestión de Roles',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(icon: const Icon(Icons.logout), onPressed: cerrarSesion),
         ],
@@ -97,6 +103,7 @@ class _GestionRolPageState extends State<GestionRolPage> {
           final usuarios = snapshot.data!.docs;
 
           return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: usuarios.length,
             itemBuilder: (context, index) {
               final user = usuarios[index];
@@ -108,20 +115,33 @@ class _GestionRolPageState extends State<GestionRolPage> {
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(nombre, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text(
+                        nombre,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
                       const SizedBox(height: 4),
                       Text('Email: $email'),
                       const SizedBox(height: 4),
                       Text('Rol actual: $rol'),
-                      const SizedBox(height: 8),
-                      DropdownButton<String>(
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
                         value: rolesDisponibles.contains(rol) ? rol : null,
-                        hint: const Text("Asignar rol"),
+                        decoration: InputDecoration(
+                          labelText: "Asignar rol",
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                         items: rolesDisponibles.map((r) {
                           return DropdownMenuItem(value: r, child: Text(r));
                         }).toList(),
@@ -132,22 +152,38 @@ class _GestionRolPageState extends State<GestionRolPage> {
                         },
                       ),
                       const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: () => cambiarEstadoUsuario(uid, activo, nombre),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: activo ? Colors.green : Colors.blue,
-                          minimumSize: const Size.fromHeight(40),
-                        ),
-                        child: Text(activo ? "Activo (Desactivar)" : "Activar"),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () => eliminarUsuario(uid, nombre),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          minimumSize: const Size.fromHeight(40),
-                        ),
-                        child: const Text("Eliminar usuario"),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () => cambiarEstadoUsuario(uid, activo, nombre),
+                              icon: Icon(activo ? Icons.visibility_off : Icons.check),
+                              label: Text(activo ? "Activo (Desactivar)" : "Activar"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: activo ? Colors.green : Colors.blue,
+                                minimumSize: const Size.fromHeight(45),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () => eliminarUsuario(uid, nombre),
+                              icon: const Icon(Icons.delete_forever),
+                              label: const Text("Eliminar"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                minimumSize: const Size.fromHeight(45),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

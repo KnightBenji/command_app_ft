@@ -52,9 +52,11 @@ class _RecuperarClavePageState extends State<RecuperarClavePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text("Recuperar clave"),
-        backgroundColor: Colors.red,
+        title: const Text("Recuperar clave", style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFFFF7043),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(32),
@@ -62,7 +64,7 @@ class _RecuperarClavePageState extends State<RecuperarClavePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.mail_outline, size: 80, color: Colors.red),
+              const Icon(Icons.mail_outline, size: 80, color: Color(0xFFFF7043)),
               const SizedBox(height: 24),
               const Text(
                 "Ingresa tu correo electrónico para recibir un enlace de recuperación",
@@ -78,19 +80,26 @@ class _RecuperarClavePageState extends State<RecuperarClavePage> {
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(50),
+                    borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.send),
-                label: const Text("Enviar correo"),
-                onPressed: enviado ? null : enviarCorreoRecuperacion,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  minimumSize: const Size.fromHeight(50),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.send),
+                  label: const Text("Enviar correo"),
+                  onPressed: enviado ? null : enviarCorreoRecuperacion,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFD54F),
+                    foregroundColor: Colors.black,
+                    minimumSize: const Size.fromHeight(50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ),
               if (enviado) ...[
